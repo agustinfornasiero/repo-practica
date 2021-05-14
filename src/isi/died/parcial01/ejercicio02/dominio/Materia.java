@@ -80,4 +80,5 @@ public class Materia {
 	public void addCorrelativaCursada(Materia m) {
 		this.correlativasCursada.add(m);
 	}
+
 }

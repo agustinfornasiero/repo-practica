@@ -34,13 +34,27 @@ public class MySysAcadImpl implements MySysAcad {
 	
 
 	@Override
-	public void inscribirAlumnoCursada(Docente d, Alumno a, Materia m, Integer cicloLectivo) {
+	public void inscribirAlumnoCursada(Docente d, Alumno a, Materia m, Integer cicloLectivo) throws MatCupoLlenoException {
 		Inscripcion insc = new Inscripcion(cicloLectivo,Inscripcion.Estado.CURSANDO);
 		d.agregarInscripcion(insc);
 		a.addCursada(insc);
 		m.addInscripcion(insc);
 		// DESCOMENTAR Y gestionar excepcion
-		// DB.guardar(insc);
+		
+		if(m.getCupoRestante()==0) throw new MatCupoLlenoException();
+		m.addInscripcion(insc);
+		d.agregarInscripcion(insc);
+		a.addCursada(insc);
+		
+		try {
+			DB.guardar(insc);
+		} catch (BaseDeDatosExcepcion e) {
+			d.getInscriptos().remove(insc);
+			a.getMateriasCursadas().remove(insc);
+			m.getInscripciones().remove(insc);
+			throw new NoSePudoInscribirException(e);
+		}
+		 DB.guardar(insc);
 	}
 
 	@Override
